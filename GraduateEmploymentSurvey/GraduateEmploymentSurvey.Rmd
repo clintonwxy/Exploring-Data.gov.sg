@@ -1,0 +1,282 @@
+---
+title: "Graduate Employment Survey"
+output:
+  rmarkdown::html_document:
+    theme: yeti
+date: "20 October 2019"
+---
+
+***
+
+### Summary
+
+- Data sourced from: [Graduate Employment Survey](https://data.gov.sg/dataset/graduate-employment-survey-ntu-nus-sit-smu-sutd)
+- Overall, the data set shows that SMU graduates have the highest employment rate, and basic monthly mean salary.
+- Generally, the employment rate of graduates is at 90%, and that the ranking of universities by employment rate changes over the years.
+- In contrast, the mean basic salary of graduates has been generally increasing over time, and that the ranking of universities by mean basic salary has remained the same.
+
+***
+
+### 1. Set Up
+
+```{r message = FALSE, warning = FALSE}
+library(dplyr)
+library(ggplot2)
+library(forcats)
+
+GES = readr::read_csv("data/graduate-employment-survey-ntu-nus-sit-smu-sutd.csv",
+                      na = c("", "na", "NA")) %>% 
+  as.data.frame()
+```
+
+<br>
+
+### 2. Variable Analysis
+
+#### a. Missing Cases
+
+```{r}
+names(GES)
+missdesc::summarymissing(GES)
+```
+
+- Overall, we find that the data set is generally complete. There are some incomplete rows (approximately 12%), but we find that from the meta data that ""na" : Data not available or not applicable".
+
+```{r}
+GES$university = as.factor(GES$university)
+GES_dropped = filter(GES, !is.na(employment_rate_overall))
+```
+
+<br>
+
+#### b. Universities and Year
+
+```{r}
+GES_dropped %>%
+  ggplot(aes(y = year, x = university, col = university)) + 
+  geom_jitter(show.legend = FALSE,
+              alpha = 0.5) + 
+  
+  labs(title = "Graph of data points, of universities over year",
+       x = "",
+       y = "") +
+  coord_flip() +
+  theme_minimal()
+```
+
+- Overall, using a graph to represent the data instead of calling the `summary` function, we can see several inferences which the function would not have been able to show. 
+
+- The data points range from 2013 to 2017. However, only SMU, NTU and NUS have data within this range.
+
+- Furthermore, the data points only range from 2014 to 2017 for SIT, and 2015 to 2017 for SUTD.
+
+- Finally, there are very few data points for SUTD in each year, which is probably the artefact of having less schools than the other universities.
+
+<br>
+
+#### c. Employment Rate
+
+```{r}
+hist(GES_dropped$employment_rate_overall, 
+     breaks = 15,
+     main = "Histogram of overall employment rate",
+     col = "gray")
+summary(GES_dropped$employment_rate_overall)
+```
+
+- From the source, it defines the employment rate as "the number of graduates working in full-time permanent, part-time, temporary or freelance employment, as a proportion of graduates in the labour force (i.e. those who were working, or not working but actively looking and available for work) approximately 6 months after completing their final examinations."
+
+- From the results, we see a negative skew, where the mean employment rate is 90.5%, ranging from 66.7 to 100%. This is unsurprising as there is likely to be a ceiling effect.
+
+<br>
+
+#### d. Basic Monthly Mean Salary
+
+```{r}
+hist(GES_dropped$basic_monthly_mean, 
+     breaks = 15,
+     main = "Histogram of basic monthly mean salary",
+     col = "gray")
+summary(GES_dropped$basic_monthly_mean)
+```
+
+- From the source, it defines Basic monthly salary as "basic pay before deduction of the employee’s CPF contributions and personal income tax. Employer’s CPF contributions, bonuses, stock options, overtime payments, commissions, allowances, other regular cash payments, lump sum payments, and payments-in-kind are excluded."
+
+- Most graduates earn an average of \$3300, with a large number of outliers earning upwards of \$4000.
+
+<br>
+
+#### e. Selecting Relevant Variables
+
+```{r}
+cor(GES_dropped$basic_monthly_mean, GES_dropped$basic_monthly_median)
+cor(GES_dropped$basic_monthly_mean, GES_dropped$gross_monthly_mean)
+```
+
+- It is unsurprising that the basic monthly mean salary has a high correlation with the basic monthly median salary and gross monthly mean salary, given that starting salaries for graduates fall within generally fall within a range of \$2500 to \$4000, and that there is unlikely to be a big difference between the mean and medians of salary.
+
+- It is also unlikely to find any meaningful differences across the basic and gross salaries, and across mean and median salaries, hence the basic monthly mean salary is used as an overall estimate of income.
+
+```{r}
+GES_dropped = GES_dropped %>%
+  select(year, 
+         university, 
+         employment_rate_overall, 
+         basic_monthly_mean)
+
+GES_dropped$university = factor(as.numeric(GES_dropped$university),
+                                levels = 1:5,
+                                labels = c("NTU",
+                                           "NUS",
+                                           "SIT",
+                                           "SMU",
+                                           "SUTD"))
+```
+
+<br>
+
+### 3. Exploratory Data Analysis
+
+#### a. Mean employment rate
+
+```{r}
+GES_dropped %>%
+  
+  group_by(university) %>%
+  summarise(mean_employ = round(mean(employment_rate_overall),
+                                digits = 2)) %>%
+  
+  ggplot(aes(y = mean_employ, 
+             x = fct_reorder(university, mean_employ), 
+             fill = university)) + 
+  geom_col(show.legend = FALSE,
+               alpha = 0.6) + 
+  geom_text(aes(label = mean_employ),
+            hjust = 1.25) + 
+  
+  labs(title = "Graph of mean employment rate between universities",
+       x = "",
+       y = "Employment rate") +
+  coord_flip() + 
+  theme_minimal()
+```
+
+- SMU has the highest employment rate at 95%, followed by NUS, SUTD and SIT which mean percentages are very closeat approximately 91%, then NTU at 88%. 
+
+- Both Range and IQR vary between schools, with SMU having the smallest range and NTU having the largest.
+
+```{r}
+GES_dropped %>%
+  
+  group_by(year, university) %>%
+  summarise(mean_employ = mean(employment_rate_overall)) %>%
+  
+  ggplot(aes(y = mean_employ, x = year, col = university)) + 
+  geom_point(size = 3, alpha = 0.6) +
+  geom_line() + 
+  
+  labs(title = "Graph of employment rate over time between universities",
+       x = "Year",
+       y = "Employment rate",
+       col = "") +
+  scale_color_discrete(limits=c("SMU", "SUTD", "SIT", "NUS", "NTU")) +
+  theme_minimal()
+```
+
+- Looking at the employment rate over time, we again see SMU having the highest employment rate across universities between 2013 to 2017.
+
+- SMU, NUS and NTU have relatively stable employment rates.
+
+- SUTD had the lowest employment rate at 2015, but increased to the second highest employment rate in the subsequent two years.
+
+<br>
+
+#### b. Basic monthly mean salary
+
+```{r}
+GES_dropped %>%
+  
+  group_by(university) %>%
+  summarise(mean_basic_salary = round(mean(basic_monthly_mean),
+                                digits = 0)) %>%
+  
+  ggplot(aes(y = mean_basic_salary, 
+             x = fct_reorder(university, mean_basic_salary), 
+             fill = university)) + 
+  geom_col(show.legend = FALSE,
+               alpha = 0.6) + 
+  geom_text(aes(label = mean_basic_salary),
+            hjust = 1.25) + 
+  
+  labs(title = "Graph of basic monthly mean salary between universities",
+       x = "",
+       y = "basic monthly mean salary ($)") +
+  coord_flip() + 
+  theme_minimal()
+```
+
+- Overall, we see that SMU has the highest basic monthly mean salary across universities, followed by SUTD, NUS, NTU then SIT
+
+```{r}
+GES_dropped %>%
+  
+  group_by(year, university) %>%
+  summarise(mean_basic_salary = round(mean(basic_monthly_mean),
+                                digits = 0)) %>%
+  
+  ggplot(aes(y = mean_basic_salary, 
+             x = year, 
+             col = university)) + 
+  geom_point(alpha = 0.6,
+             size = 2) + 
+  geom_line() +
+  
+  labs(title = "Graph of basic monthly mean salary between universities",
+       x = "Year",
+       y = "basic monthly mean salary ($)",
+       col = "") +
+  scale_color_discrete(limits=c("SMU", "SUTD", "NUS", "NTU", "SIT")) +
+  theme_minimal()
+```
+
+<br>
+
+#### c. Mean employment rate against income
+
+```{r}
+GES_dropped %>%
+  
+  ggplot(aes(y = employment_rate_overall, 
+             x = basic_monthly_mean,
+             col = university)) +
+  geom_point(show.legend = FALSE, 
+             alpha = 0.6) + 
+  
+  labs(title = "Graph of basic monthly mean salary between universities",
+       x = "Basic monthly mean salary ($)",
+       y = "Employment rate") +
+  facet_grid(rows = GES_dropped$university) + 
+  theme_minimal()
+```
+
+- There appears to be a slight positive relationship between employment rate and the mean of monthly salary.
+
+- However, I would not read too much into it as there is a ceiling effect, where most data points are close to or if not at 100% on the employment rate variable.
+
+```{r}
+lm(basic_monthly_mean ~ employment_rate_overall + university, 
+   data = GES_dropped) %>% 
+  summary()
+```
+
+- Fitting a regression model of mean basic salary onto university and employment rate, we find that there is a positive relationship between employment rate and salary. However, from the size of the coefficients, we find that school is a better predictor of mean basic salary.
+
+- Once again, I would not read too much into interpreting how salary is a function of the variables as there are other things not included in the model. It is likely that both employment rate and salary is instead influneced by external variables such as the subject, which was not analysed.
+
+### 4. Notes
+
+- Overall, the values found for the employment rates and mean basic salary are not to be taken to be the true values. As noted in the source, it is not representative of all graduates, but only for programmes where there were sufficient responses by students.
+
+***
+
+
