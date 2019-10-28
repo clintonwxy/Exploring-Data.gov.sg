@@ -1,0 +1,90 @@
+# Metadata for Overseas Visitors Survey Visitors' Profile Data - Frequency of Visit
+---
+Identifier: '0ee91608-70f0-440d-99ac-1bbf3d9d3dec'
+Name: 'overseas-visitors-survey-visitors-profile-data-frequency-of-visit'
+Title: 'Overseas Visitors Survey Visitors'' Profile Data - Frequency of Visit'
+Description:
+  - 'Data on visitors’ profile are obtained mainly from the Overseas Visitors Survey.
+    The annual survey covers a sample of about 26,000 visitors departing Singapore
+    via air, sea and land checkpoints. Face-to-face interviews are conducted with
+    visitors at the departure points throughout the year.'
+  - ''
+  - 'Methodology'
+  - ''
+  - 'The sample is selected based on a quarterly quota, which is set according to
+    the actual visitor arrival statistics from the same quarter of the previous year.
+    In addition, the data collected are weighted by country of residence, age group
+    and length of stay, based on actual visitor arrival statistics compiled from the
+    D/E cards. This ensures that the profile of visitors surveyed resembles the distribution
+    of visitor arrivals in the total population.'
+Topics:
+  - 'Economy'
+Keywords:
+  - 'Tourism'
+Publisher:
+  Name: 'Singapore Tourism Board'
+  Admin 1:
+    Name: 'TANG Sok Lan'
+    Department: 'Predictive Analytics'
+    Email: 'tang_sok_lan@stb.gov.sg'
+Sources:
+  - 'Singapore Tourism Board'
+License: 'https://data.gov.sg/open-data-licence'
+Frequency: 'Annual'
+Coverage: '2013-01-01 to 2014-12-31'
+Last Updated: '2017-07-11T06:55:56.990111'
+Resources:
+  -
+    Identifier: 'a6cec7d3-73f9-4f6a-ad52-aeb25a34ebd5'
+    Title: 'Overseas Visitors Survey Visitors'' Profile Data - Frequency of Visit'
+    Url: 'https://storage.data.gov.sg/overseas-visitors-survey-visitors-profile-data-frequency-of-visit/resources/overseas-visitors-survey-visitors-profile-data-frequency-of-visit-2017-07-11T06-54-45Z.csv'
+    Format: 'CSV'
+    Coverage: '2013-01-01 to 2014-12-31'
+    Last Updated: '2017-07-11T06:54:45.653936'
+    Schema:
+      -
+        Name: 'period'
+        Title: 'Period'
+        Type: 'datetime'
+        Sub Type: 'year'
+        Format: 'YYYY'
+      -
+        Name: 'region'
+        Title: 'Region'
+        Type: 'text'
+        Sub Type: 'general'
+      -
+        Name: 'cor'
+        Title: 'Country of Residence'
+        Type: 'text'
+        Sub Type: 'general'
+        Description: 'All visitors are classified by country of residence unless otherwise
+          stated. Total international visitor arrivals include all visitors coming
+          by air and sea and non-Malaysian citizens coming by land.'
+      -
+        Name: 'first'
+        Title: 'First Visit'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'repeat'
+        Title: 'Repeat Visit'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'not_stated'
+        Title: 'Not Stated'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'

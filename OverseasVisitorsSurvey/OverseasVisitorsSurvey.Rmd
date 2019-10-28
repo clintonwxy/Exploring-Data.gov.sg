@@ -1,0 +1,173 @@
+---
+title: "Overseas Visitors Survey"
+output:
+  rmarkdown::html_document:
+    theme: yeti
+date: "28 October 2019"
+editor_options: 
+  chunk_output_type: console
+---
+
+***
+
+### Summary
+
+- Data sourced from: Overseas Visitors Survey ( [Accomodation](https://data.gov.sg/dataset/overseas-visitors-survey-visitors-profile-data-accommodation), [Travelling Companions](https://data.gov.sg/dataset/overseas-visitors-survey-visitors-profile-data-travelling-companions), [Purpose of Visit](https://data.gov.sg/dataset/overseas-visitors-survey-visitors-profile-data-purpose-of-visit), [Frequency of Visit](https://data.gov.sg/dataset/overseas-visitors-survey-visitors-profile-data-frequency-of-visit) )
+- Overall, it is found that tourists from western countries make up first time visitors to Singapore, and tourists from neighbouring countries make up repeat visitors.
+- First time visitors are in Singapore generally for holiday and leisure while repeat visitors are mostly in Singapore for visiting. Both first time and repeat visitors are in Singapore for business.
+
+***
+
+### 1. Set Up
+
+```{r message = FALSE, warning = FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(forcats)
+library(stringr)
+
+accom = readr::read_csv("data/overseas-visitors-survey-visitors-profile-data-accommodation.csv") %>% as.data.frame
+freq = readr::read_csv("data/overseas-visitors-survey-visitors-profile-data-frequency-of-visit.csv") %>% as.data.frame
+purp = readr::read_csv("data/overseas-visitors-survey-visitors-profile-data-purpose-of-visit.csv") %>% as.data.frame
+comp = readr::read_csv("data/overseas-visitors-survey-visitors-profile-data-travelling-companions.csv") %>% as.data.frame
+```
+
+```{r}
+comp[c(12,35), "region"] = "SOUTH ASIA"
+accom[accom$cor != comp$cor, 3] = comp[accom$cor != comp$cor, 3]
+purp[accom$cor != purp$cor, 3] = accom[accom$cor != purp$cor, 3]
+```
+
+- Making the data set columns of region and country the same. There are some inconsistencies in the naming of countries between data sets, with regex in some of the names.
+
+- Typo in categorising India in in the North Asia `region` in the `comp` data set.
+
+```{r}
+OVS = left_join(accom, freq, by = c("period", "region", "cor"))
+OVS = left_join(OVS,   purp, by = c("period", "region", "cor"))
+OVS = left_join(OVS,   comp, by = c("period", "region", "cor"))
+
+OVS$region = as.factor(OVS$region)
+OVS$cor = as.factor(OVS$cor)
+colnames(OVS)[8] = "repeated"
+```
+
+<br>
+
+### 2. Who's coming to Singapore?
+
+```{r fig.align = "center"}
+OVS %>%
+  select(period, cor, first, repeated) %>%
+  filter(cor != "TOTAL") %>%
+  gather(key = "frequency", value = "percentage", -c(period, cor)) %>%
+  
+  group_by(cor, frequency) %>%
+  summarise(mean.percentage = mean(percentage)) %>%
+  filter(frequency == "first") %>%
+  
+  ggplot(aes(y = mean.percentage,
+             x = fct_reorder(cor, mean.percentage))) +
+  geom_col(fill = "#ffd166") +
+  
+  labs(title = "Graph of first time visitors types between countries",
+       y = "Percentage",
+       x = "") +
+  theme_minimal() +
+  coord_flip() 
+```
+
+- Unsurpisingly, the first time visitors coming to Singapore mostly are from Germany, France, USA, Canada and Italy
+
+```{r fig.align = "center"}
+OVS %>%
+  
+  select(period, cor, first, repeated) %>%
+  filter(cor != "TOTAL") %>%
+  gather(key = "frequency", value = "percentage", -c(period, cor)) %>%
+  
+  group_by(cor, frequency) %>%
+  summarise(mean.percentage = mean(percentage)) %>%
+  filter(frequency == "repeated") %>%
+  
+  ggplot(aes(y = mean.percentage,
+             x = fct_reorder(cor, mean.percentage))) +
+  geom_col(fill = "#06d6a0") +
+  
+  labs(title = "Graph of repeat visitors types between countries",
+       y = "Percentage",
+       x = "") +
+  theme_minimal() +
+  coord_flip()
+```
+
+- Also, repeat visitors mostly come from Malaysia, Indonesia, Thailand, Hong Kong and New Zealand.
+
+<br>
+
+### 3. For what ah?
+
+```{r}
+OVS_subset = OVS %>%
+  
+  filter(cor == "GERMANY" | 
+           cor == "FRANCE" | 
+           cor == "USA" | 
+           cor == "CANADA" | 
+           cor == "ITALY" | 
+           cor == "MALAYSIA" | 
+           cor == "INDONESIA" | 
+           cor == "THAILAND" | 
+           cor == "HONG KONG" | 
+           cor == "NEW ZEALAND") %>%
+  
+  select(period, 
+         cor, 
+         Leisure = leisure, 
+         Holiday = holiday, 
+         Visiting = vfr, 
+         Business = business.x) %>%
+  
+  gather(key = "purpose", value = "percentage", -c(period, cor)) %>% 
+  
+  group_by(cor, purpose) %>%
+  
+  summarise(mean.percentage = mean(percentage)) %>%
+  
+  mutate(frequency = ifelse(cor == "GERMANY" |
+                              cor == "FRANCE" | 
+                              cor == "USA" | 
+                              cor == "CANADA" | 
+                              cor == "ITALY",
+                            "First",
+                            "Repeat")) %>%
+  mutate(frequency = factor(frequency, 
+                            levels = c("First", "Repeat")))
+  
+```
+
+```{r fig.width = 10}
+OVS_subset %>%
+  
+  ggplot(aes(y = mean.percentage, 
+             x = fct_reorder(cor, as.numeric(frequency)), 
+             fill = frequency)) +
+  geom_col() +
+  
+  labs(title = "Graph of Purpose of visit across countries between first time and repeat visitors",
+       y = "Percentage",
+       x = "",
+       fill = "") +
+  scale_fill_manual(values = c("#ffd166", "#06d6a0")) +
+  coord_flip() +
+  theme_minimal() + 
+  theme(legend.position="top") +
+  facet_grid(cols = vars(purpose))
+```
+
+- Mostly, first time visitors are in Singapore for Holiday and Leisure while repeat visitors are here for visiting.
+- There appears to be a mixed group for business. Thailand, Malaysia and Hong Kong visitors frequent Singapore for business, but not for individuals from New Zealand and Indonesia.
+- Most first time visitors in Singapore for business come from the USA and Italy.
+
+***

@@ -1,0 +1,182 @@
+# Metadata for Overseas Visitors Survey Visitors' Profile Data  Travelling Companions
+---
+Identifier: 'a0b8008e-7ae1-4e51-95e6-7cde63694d03'
+Name: 'overseas-visitors-survey-visitors-profile-data-travelling-companions'
+Title: 'Overseas Visitors Survey Visitors'' Profile Data – Travelling Companions'
+Description:
+  - 'Data on visitors’ profile are obtained mainly from the Overseas Visitors Survey.
+    The annual survey covers a sample of about 26,000 visitors departing Singapore
+    via air, sea and land checkpoints. Face-to-face interviews are conducted with
+    visitors at the departure points throughout the year.'
+  - ''
+  - 'Methodology'
+  - ''
+  - 'The sample is selected based on a quarterly quota, which is set according to
+    the actual visitor arrival statistics from the same quarter of the previous year.
+    In addition, the data collected are weighted by country of residence, age group
+    and length of stay, based on actual visitor arrival statistics compiled from the
+    D/E cards. This ensures that the profile of visitors surveyed resembles the distribution
+    of visitor arrivals in the total population.'
+Topics:
+  - 'Economy'
+Keywords:
+  - 'Tourism'
+Publisher:
+  Name: 'Singapore Tourism Board'
+  Admin 1:
+    Name: 'TANG Sok Lan'
+    Department: 'Predictive Analytics'
+    Email: 'tang_sok_lan@stb.gov.sg'
+Sources:
+  - 'Singapore Tourism Board'
+License: 'https://data.gov.sg/open-data-licence'
+Frequency: 'Annual'
+Coverage: '2013-01-01 to 2014-12-31'
+Last Updated: '2017-07-11T07:08:48.827885'
+Resources:
+  -
+    Identifier: 'bc2b215a-f532-4036-b6e1-64b18dbf43c8'
+    Title: 'Overseas Visitors Survey Visitors'' Profile Data – Travelling Companions'
+    Url: 'https://storage.data.gov.sg/overseas-visitors-survey-visitors-profile-data-travelling-companions/resources/overseas-visitors-survey-visitors-profile-data-travelling-companions-2017-07-11T07-07-39Z.csv'
+    Format: 'CSV'
+    Coverage: '2013-01-01 to 2014-12-31'
+    Last Updated: '2017-07-11T07:07:39.636111'
+    Schema:
+      -
+        Name: 'period'
+        Title: 'Year'
+        Type: 'datetime'
+        Sub Type: 'year'
+        Format: 'YYYY'
+      -
+        Name: 'region'
+        Title: 'Region'
+        Type: 'text'
+        Sub Type: 'general'
+      -
+        Name: 'cor'
+        Title: 'Country of Residence'
+        Type: 'text'
+        Sub Type: 'general'
+        Description: 'All visitors are classified by country of residence unless otherwise
+          stated. Total international visitor arrivals include all visitors coming
+          by air and sea and non-Malaysian citizens coming by land.'
+      -
+        Name: 'alone'
+        Title: 'Alone'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'spouse'
+        Title: 'Spouse'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'friends'
+        Title: 'Friends'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'child_below_19yrs'
+        Title: 'Children Aged 19 Years And Below'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'business'
+        Title: 'Business Associates / Colleagues'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+          - '"-" : Less than 0.5%.'
+      -
+        Name: 'parents_and_in_law'
+        Title: 'Parents / Parents-in-Law'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'siblings'
+        Title: 'Siblings'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is calculated based on Those Who Didn’t Travel
+            Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'relatives'
+        Title: 'Relatives'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+          - '"-" : Less than 0.5%.'
+      -
+        Name: 'partner'
+        Title: 'Partner/ Boyfriend/ Girlfriend'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+      -
+        Name: 'child_above_19yrs'
+        Title: 'Children Aged Above 19'
+        Type: 'numeric'
+        Sub Type: 'percentage'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - 'Percentage of visitors is based on Those Who Didn’t Travel Alone.'
+          - 'Percentages are expressed as a value over 100, i.e. "100" represents
+            100%'
+          - '"-" : Less than 0.5%.'
+      -
+        Name: 'average_family_size'
+        Title: 'Average Family Size'
+        Type: 'numeric'
+        Sub Type: 'general'
+        Unit Of Measure: 'Number of people'
+        Description:
+          - 'Figures exclude FORMULA 1™ visitors’ profile.'
+          - '(Family=Self With Spouse/Children/Parents/Siblings/Relatives)'
+      -
+        Name: 'average_party_size'
+        Title: 'Average Party Size'
+        Type: 'numeric'
+        Sub Type: 'general'
+        Unit Of Measure: 'Number of people'
+        Description: 'Figures exclude FORMULA 1™ visitors’ profile.'
