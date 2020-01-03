@@ -1,0 +1,152 @@
+---
+title: "Taxi Availability after New Year Countdown 2020"
+output:
+  rmarkdown::html_document:
+    theme: yeti
+date: "3 January 2020"
+editor_options: 
+  chunk_output_type: console
+---
+
+***
+
+### Summary
+
+- Data sourced from: datagovsgR, R package for accessing developer API tools
+- Generally taxi availability increases throughout the day, with the lowest availability occuring at 0700
+- Taxis tend to gather around the airport and town area
+
+***
+
+### 1. Set Up
+
+```{r message = FALSE, warning = FALSE}
+library(datagovsgR)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(ggmap)
+library(gganimate)
+```
+
+```{r}
+hours = c(0:23) %>% as.character() %>% str_pad(width = 2, pad = "0")
+minutes = c(00,10,20,30,40,50) %>% as.character() %>% str_pad(width = 2, pad = "0")
+
+output_df_all = data.frame()
+```
+
+* Allows for customisation of hours and minute intervals
+
+<br>
+
+### 2. Quering of data
+  
+```{r message = FALSE}
+for (i in 1:length(hours)) {
+  for (j in 1:length(minutes)) {
+    
+    input_date_time = paste("2020-01-01T", hours[i], ":", minutes[j], ":", "00", sep = "")
+    output_df = taxi_availability(date_time = input_date_time) %>%
+      mutate(date_time = paste("2020-01-01",hours[i], minutes[j], sep = ""))
+    
+    output_df_all = rbind(output_df_all, output_df)
+  }
+}
+
+output_df_all$date_time = parse_date_time(output_df_all$date_time, orders = "Ymd HM")
+```
+
+* Quering API
+* I chose to work in intervals of 10 minutes, on the first day of 2020
+
+#### a. Graph of taxi availability over the 24 hour period
+
+```{r}
+avail_summary = output_df_all %>% 
+  count(date_time)
+
+ggplot(avail_summary, aes(y = n, x = date_time)) + 
+  geom_point(col = "#26547c") +
+  geom_line(col = "#26547c") + 
+  labs(y = "Available Taxis", x = "Time") +
+  theme_minimal()
+```
+
+* There appears to be a huge peak at midnight, and then a sharp drop over the next hour. This might be because of people heading home after the new year countdown.
+
+* Generally, the taxi availability increases over the day, with the lowest around early morning and the rush hour, and the highest at midnight.
+
+* The sharp drop in availability might be due to taxi bookings during the early morning rush hour.
+
+#### b. Average availability by the hour
+
+```{r}
+avail_summary %>% 
+  mutate(hour = hour(date_time)) %>%
+  group_by(hour) %>%
+  summarise(mean_n = mean(n)) %>%
+  ggplot(aes(y = mean_n, x = hour)) + 
+  geom_point(col = "#26547c") +
+  geom_line(col = "#26547c") + 
+  labs(y = "Available Taxis", x = "Time") +
+  theme_minimal()
+```
+
+* Graphing by the hour shows a smoother graph, but we lose the peak at midnight noticed earlier. 
+
+* General trend remains the same.
+
+<br>
+
+### 3. Taxi Locations
+
+```{r message = FALSE}
+register_google(key = Sys.getenv("GOOGLE_MAPS_API_KEY"))
+sing <- get_map(location = "singapore",
+                zoom = 11, 
+                maptype = "terrain", 
+                source = "google")
+```
+
+* To obtain the image of Singapore
+
+```{r}
+plot = ggmap(sing) + 
+  geom_density_2d(aes(y = lat, x = long), data = output_df_all)
+```
+
+```{r eval = FALSE}
+plot + 
+  transition_time(date_time) + 
+  labs(title = 'Date and Time: {frame_time}')
+```
+
+* Doesnt look very nice and looks very complicated
+* Maybe it would be smoother if it was by the hour
+
+```{r eval = FALSE}
+output_df_all_hoursubset = output_df_all %>%
+  filter(minute(date_time) == 0)
+
+p = ggmap(sing) + 
+  geom_density_2d(aes(y = lat, x = long), data = output_df_all_hoursubset) +
+  labs(title = "{closest_state}") + 
+  transition_states(date_time, transition_length = 0, state_length = 1)
+
+g = output_df_all_hoursubset %>%
+  count(date_time) %>%
+  ggplot(aes(y = n, x = date_time)) + 
+  geom_point() + 
+  geom_line() +
+  theme_minimal() +
+  transition_reveal(date_time)
+
+animate(p, fps = 25)
+animate(g, fps = 25)
+```
+
+* To my understanding Rmarkdown knitting does not support these animations
+
+***
