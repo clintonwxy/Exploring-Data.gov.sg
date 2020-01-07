@@ -42,3 +42,12 @@ ResaleFlatPrice/ResaleFlatPrice.Rmd
 ResaleFlatPrice/data/addr_df_complete.csv
 ResaleFlatPrice/data/mrt_locations.csv
 ResaleFlatPrice/data/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv
+*.dbf
+*.prj
+*.prj
+*.sbx
+*.sbn
+*.shp
+*.xml
+*.shx
+TaxiAvailabilityUpdate/TaxiAvailabilityUpdate.Rproj

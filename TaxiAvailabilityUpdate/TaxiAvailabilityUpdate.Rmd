@@ -1,0 +1,167 @@
+---
+title: "Taxi Availability after New Year Countdown 2020 Update"
+output:
+  rmarkdown::html_document:
+    theme: yeti
+date: "7 January 2020"
+editor_options: 
+  chunk_output_type: console
+---
+
+***
+
+### Summary
+
+- Data sourced from: datagovsgR, R package for accessing developer API tools
+- Re-mapped taxi locations from a heat map, into a scale by locations
+
+***
+
+### 1. Set Up
+
+```{r message = FALSE, warning = FALSE}
+library(datagovsgR)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(ggmap)
+library(gganimate)
+library(sf)
+library(tmap)
+```
+
+```{r eval = FALSE}
+hours = c(0:23) %>% as.character() %>% str_pad(width = 2, pad = "0")
+minutes = c(00,10,20,30,40,50) %>% as.character() %>% str_pad(width = 2, pad = "0")
+
+output_df_all = data.frame()
+```
+
+* Same code as before
+
+<br>
+
+### 2. Quering of data
+  
+```{r message = FALSE, eval = FALSE}
+for (i in 1:length(hours)) {
+  for (j in 1:length(minutes)) {
+    
+    input_date_time = paste("2020-01-01T", hours[i], ":", minutes[j], ":", "00", sep = "")
+    output_df = taxi_availability(date_time = input_date_time) %>%
+      mutate(date_time = paste("2020-01-01",hours[i], minutes[j], sep = ""))
+    
+    output_df_all = rbind(output_df_all, output_df)
+  }
+}
+
+output_df_all$date_time = parse_date_time(output_df_all$date_time, orders = "Ymd HM")
+```
+
+* Same code as before
+
+<br>
+
+#### a. Converting of objects into sf objects with the correct CRS
+
+```{r eval = FALSE}
+taxi_avail_sf = st_as_sf(output_df_all, 
+                         coords = c("long", "lat"), 
+                         crs = 4326)
+
+
+sg = st_read(dsn = "shpfiles", 
+             layer = "Planning_Area_Census2010", 
+             stringsAsFactors=FALSE)
+sg = st_transform(sg, crs = 4326)
+sg = sg %>% 
+  select(OBJECTID,
+         AREA = PLN_AREA_N,
+         REGION = REGION_N,
+         X_ADDR,
+         Y_ADDR,
+         geometry)
+
+```
+
+* Importing the Singapore shape files, and converting the taxi locations into a `sf` object
+
+#### b. Obtaining aggregates of the data
+
+```{r eval = FALSE}
+aggr_count = st_join(taxi_avail_sf, sg) %>% 
+  count(date_time, AREA) %>% 
+  as.data.frame(stringsAsFactors = FALSE) %>%
+  select(date_time, AREA, n)
+
+aggr_count = aggr_count %>% arrange(date_time)
+```
+
+* Using a spatial join to locate the towns in which each taxi was located in
+* Using `count` then to find out the number of taxis for a given town and date time
+* Sorted so that the loop in which the date time is used for plotting is in the correct order
+
+<br>
+
+#### c. Graphing the number of taxis for each given date time
+
+```{r eval = FALSE}
+
+for (i in 1:length(unique(aggr_count$date_time))) {
+  
+  input = aggr_count %>% filter(date_time == unique(aggr_count$date_time)[i])
+  
+  data = left_join(sg, input, by = "AREA")
+  
+  data$n[is.na(data$n)] = 0
+  
+  ggplot(data) + 
+    geom_sf(aes(fill = n), show.legend = FALSE) + 
+    scale_fill_viridis_c() +
+    theme_void() + 
+    labs(title = paste("Time: ", 
+                       unique(aggr_count$date_time)[i] %>% 
+                         hour() %>%
+                         str_pad(width = 2, pad = "0"),
+                       ":",
+                       unique(aggr_count$date_time)[i] %>% 
+                         minute() %>%
+                         str_pad(width = 2, pad = "0"),
+                       "\n",
+                       "Number of Taxis: ",
+                       sum(data$n),
+                       sep = ""
+                       ))
+  
+  ggsave(filename = paste("image", 
+                          i %>% 
+                            str_pad(width = 3, pad = "0"), 
+                          ".png", 
+                          sep = ""))
+}
+```
+
+* Each of the 144 ggplots were saved as png images, padded so that they are in the correct order
+
+<br>
+
+```{r eval = FALSE}
+file_names <- list.files(path = ".")
+
+image_read(file_names) %>%
+   image_animate(fps = 10)
+```
+
+* image_animate was used instead of using `ani_record()` as I could not make it work with the map files
+* also `transition_time` does not appear to work with `geom_sf()`.
+
+***
+
+
+
+
+
+
+
+
